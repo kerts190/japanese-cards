@@ -68,6 +68,9 @@
   .score{font-size:16px;color:#1f3a5f;font-weight:700;flex:1;}
   .qnext{padding:12px 22px;border-radius:12px;border:none;background:#c9a227;color:#fff;font-size:17px;font-weight:700;cursor:pointer;}
   .qnext:disabled{opacity:.35;}
+  .qtype{display:flex;gap:8px;margin-bottom:14px;flex:none;}
+  .qtbtn{padding:7px 20px;border-radius:999px;border:2px solid #d9d3c2;background:#fff;color:#6b6450;font-size:14px;font-weight:700;cursor:pointer;}
+  .qtbtn.on{background:#1f3a5f;border-color:#1f3a5f;color:#fff;}
 </style>
 </head>
 <body>
@@ -89,7 +92,7 @@
 const ALL = JSON.parse(document.getElementById('cards').textContent);
 const main = document.getElementById('main');
 const secSel = document.getElementById('sec');
-let mode='browse', deck=[], pos=0, score=0, asked=0;
+let mode='browse', deck=[], pos=0, score=0, asked=0, quizType='english';
 
 // section dropdown
 (function(){
@@ -155,27 +158,40 @@ function renderQuiz(){
     return;
   }
   const c=deck[pos];
-  // 4 options: correct + 3 distractors (prefer same section, fallback all)
-  let others=pool().filter(x=>x.def!==c.def);
+  // mode toggle: English (pick the meaning) vs Romaji (pick the reading)
+  const toggle='<div class="qtype">'+
+    '<button class="qtbtn'+(quizType==='english'?' on':'')+'" data-qt="english">English</button>'+
+    '<button class="qtbtn'+(quizType==='romaji'?' on':'')+'" data-qt="romaji">Rōmaji</button>'+
+  '</div>';
+  // 4 options: correct + 3 distractors (distinct on whichever field is being tested)
+  const rom=(quizType==='romaji');
+  let others=pool().filter(x=> rom ? x.romaji!==c.romaji : x.def!==c.def);
   shuffle(others);
   let opts=[c, ...others.slice(0,3)];
   shuffle(opts);
+  const promptTxt = rom ? 'Tap the correct reading' : 'What does it mean?';
+  const optsHTML = opts.map((o,i)=>{
+    const label = rom ? o.romaji : o.def;
+    const ok = (rom ? o.romaji===c.romaji : o.def===c.def) ? 1 : 0;
+    return '<button class="opt" data-i="'+i+'" data-ok="'+ok+'">'+label+'</button>';
+  }).join('');
   main.innerHTML='<div class="quizwrap">'+
+    toggle+
     '<div class="qcard">'+c.svg+'<div class="qhira">'+c.hira+'</div>'+
-      '<div class="qprompt">What does it mean?</div></div>'+
-    '<div class="opts" id="opts">'+
-      opts.map(o=>'<button class="opt" data-ok="'+(o.def===c.def?1:0)+'">'+o.def+'</button>').join('')+
-    '</div>'+
+      '<div class="qprompt">'+promptTxt+'</div></div>'+
+    '<div class="opts" id="opts">'+optsHTML+'</div>'+
     '<div class="qbar"><div class="score">Score '+score+' / '+asked+'</div>'+
       '<button class="qnext" id="qn" disabled>Next &#8250;</button></div>'+
   '</div>';
   asked++;
+  document.querySelectorAll('.qtbtn').forEach(t=>t.onclick=()=>{if(quizType!==t.dataset.qt){quizType=t.dataset.qt;startQuiz();}});
   const btns=[...document.querySelectorAll('.opt')];
   btns.forEach(b=>b.onclick=()=>{
     if(b.disabled)return;
     const ok=b.dataset.ok==='1';
-    btns.forEach(x=>{x.disabled=true;if(x.dataset.ok==='1')x.classList.add('correct');});
-    if(ok)score++; else b.classList.add('wrong');
+    // lock all; in Romaji mode flip every option to its English meaning; mark correct (green) / wrong pick (red)
+    btns.forEach(x=>{x.disabled=true;if(rom)x.textContent=opts[+x.dataset.i].def;if(x.dataset.ok==='1')x.classList.add('correct');});
+    if(ok){score++;} else {b.classList.add('wrong');}
     document.querySelector('.score').textContent='Score '+score+' / '+asked;
     const qn=document.getElementById('qn');qn.disabled=false;
     qn.onclick=()=>{pos=(pos+1)%deck.length;renderQuiz();};
