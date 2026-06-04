@@ -155,17 +155,16 @@ function renderQuiz(){
     return;
   }
   const c=deck[pos];
-  // 4 options: correct + 3 distractors (distinct readings). Options show ROMAJI;
-  // they flip to the English meaning once an answer is tapped.
-  let others=pool().filter(x=>x.romaji!==c.romaji);
+  // 4 options: correct + 3 distractors (prefer same section, fallback all)
+  let others=pool().filter(x=>x.def!==c.def);
   shuffle(others);
   let opts=[c, ...others.slice(0,3)];
   shuffle(opts);
   main.innerHTML='<div class="quizwrap">'+
     '<div class="qcard">'+c.svg+'<div class="qhira">'+c.hira+'</div>'+
-      '<div class="qprompt">Tap the correct reading</div></div>'+
+      '<div class="qprompt">What does it mean?</div></div>'+
     '<div class="opts" id="opts">'+
-      opts.map((o,i)=>'<button class="opt" data-i="'+i+'" data-ok="'+(o.romaji===c.romaji?1:0)+'">'+o.romaji+'</button>').join('')+
+      opts.map(o=>'<button class="opt" data-ok="'+(o.def===c.def?1:0)+'">'+o.def+'</button>').join('')+
     '</div>'+
     '<div class="qbar"><div class="score">Score '+score+' / '+asked+'</div>'+
       '<button class="qnext" id="qn" disabled>Next &#8250;</button></div>'+
@@ -175,9 +174,8 @@ function renderQuiz(){
   btns.forEach(b=>b.onclick=()=>{
     if(b.disabled)return;
     const ok=b.dataset.ok==='1';
-    // lock all; flip EVERY option to its English meaning; mark the correct one green and a wrong pick red
-    btns.forEach(x=>{x.disabled=true;x.textContent=opts[+x.dataset.i].def;if(x.dataset.ok==='1')x.classList.add('correct');});
-    if(ok){score++;} else {b.classList.add('wrong');}
+    btns.forEach(x=>{x.disabled=true;if(x.dataset.ok==='1')x.classList.add('correct');});
+    if(ok)score++; else b.classList.add('wrong');
     document.querySelector('.score').textContent='Score '+score+' / '+asked;
     const qn=document.getElementById('qn');qn.disabled=false;
     qn.onclick=()=>{pos=(pos+1)%deck.length;renderQuiz();};
