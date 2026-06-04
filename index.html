@@ -175,9 +175,9 @@ function renderQuiz(){
   btns.forEach(b=>b.onclick=()=>{
     if(b.disabled)return;
     const ok=b.dataset.ok==='1';
-    // lock all; flip the correct answer (green) and the tapped answer to their English meaning
-    btns.forEach(x=>{x.disabled=true;if(x.dataset.ok==='1'){x.classList.add('correct');x.textContent=opts[+x.dataset.i].def;}});
-    if(ok){score++;} else {b.classList.add('wrong');b.textContent=opts[+b.dataset.i].def;}
+    // lock all; flip EVERY option to its English meaning; mark the correct one green and a wrong pick red
+    btns.forEach(x=>{x.disabled=true;x.textContent=opts[+x.dataset.i].def;if(x.dataset.ok==='1')x.classList.add('correct');});
+    if(ok){score++;} else {b.classList.add('wrong');}
     document.querySelector('.score').textContent='Score '+score+' / '+asked;
     const qn=document.getElementById('qn');qn.disabled=false;
     qn.onclick=()=>{pos=(pos+1)%deck.length;renderQuiz();};
