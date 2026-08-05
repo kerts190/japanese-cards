@@ -20,7 +20,7 @@
   select{font-size:15px;padding:7px 8px;border-radius:9px;border:none;background:#fff;max-width:46%;}
   .tabs{display:flex;gap:8px;margin-top:10px;}
   .tab{flex:1;text-align:center;padding:9px 0;border-radius:10px;background:#33507a;color:#cdd7e6;
-    font-size:15px;font-weight:600;cursor:pointer;border:none;}
+    font-size:13.5px;font-weight:600;cursor:pointer;border:none;}
   .tab.on{background:#fff;color:#1f3a5f;}
   main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;min-height:0;}
   .card{width:100%;max-width:440px;height:100%;max-height:620px;background:#fffdf7;border:1px solid #d9d3c2;
@@ -71,6 +71,20 @@
   .score{font-size:15px;color:#6b6557;}
   .qnext{padding:12px 26px;border-radius:12px;border:none;background:#1f3a5f;color:#fff;font-size:16px;font-weight:600;cursor:pointer;}
   .qnext:disabled{opacity:.4;}
+  .back{overflow-y:auto;}
+  .bpic{width:26%;max-width:110px;margin-top:8px;}
+  .bpic svg{width:100%;height:auto;max-height:12vh;}
+  .alllist{width:100%;max-width:520px;height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+    padding:2px 2px 24px;-webkit-overflow-scrolling:touch;}
+  .acount{font-size:13px;color:#8a8472;text-align:center;flex:none;}
+  .acard{background:#fffdf7;border:1px solid #d9d3c2;border-radius:14px;padding:10px 12px;display:flex;gap:12px;
+    align-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.07);flex:none;}
+  .acard svg{width:62px;height:62px;flex:0 0 auto;}
+  .acard .ak{font-size:38px;flex:0 0 auto;min-width:48px;text-align:center;}
+  .acard .ainfo{flex:1;min-width:0;}
+  .acard .af{font-size:15px;font-weight:700;}
+  .acard .aen{font-size:13.5px;color:#6b6557;}
+  .acard .ard{font-size:12px;color:#9a8f76;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 </style>
 </head>
 <body>
@@ -83,7 +97,9 @@
   </div>
   <div class="tabs">
     <button class="tab on" data-m="browse">Browse</button>
+    <button class="tab" data-m="all">All</button>
     <button class="tab" data-m="shuffle">Shuffle</button>
+    <button class="tab" data-m="memory">Memory</button>
     <button class="tab" data-m="quiz">Quiz</button>
   </div>
 </header>
@@ -104,7 +120,7 @@ let mode='browse', deck=[], pos=0, score=0, asked=0, quizType='english';
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function pool(){const s=+secSel.value;return s===0?ALL.slice():ALL.filter(c=>c.g===s);}
-function buildDeck(){deck=pool();if(mode==='shuffle'||mode==='quiz')shuffle(deck);pos=0;}
+function buildDeck(){deck=pool();if(mode==='shuffle'||mode==='quiz'||mode==='memory')shuffle(deck);pos=0;}
 
 /* speech: rank real Japanese voices above Apple's novelty character voices */
 let jaVoice=null;
@@ -133,13 +149,17 @@ function readsHTML(c){
 
 function render(){
   if(mode==='quiz'){renderQuiz();return;}
+  if(mode==='all'){renderAll();return;}
   const c=deck[pos];
   main.innerHTML=
     '<div class="card" id="cardEl">'+
       '<div class="secbadge">Grade '+c.g+'</div>'+
-      '<div class="pic">'+c.svg+'<div class="kbig mincho">'+c.k+'</div></div>'+
+      (mode==='memory'
+        ? '<div class="pic"><div class="kbig mincho" style="font-size:150px">'+c.k+'</div></div>'
+        : '<div class="pic">'+c.svg+'<div class="kbig mincho">'+c.k+'</div></div>')+
       '<div class="back">'+
         '<div class="bkanji mincho">'+c.k+'</div>'+
+        (mode==='memory'?'<div class="bpic">'+c.svg+'</div>':'')+
         '<div class="bdef">'+c.en+'</div>'+
         '<div class="reads">'+readsHTML(c)+'</div>'+
         '<div class="say">say: \u201c'+c.say+'\u201d</div>'+
@@ -167,6 +187,27 @@ function render(){
   });
 }
 function go(d){pos=(pos+d+deck.length)%deck.length;render();}
+
+function renderAll(){
+  deck=pool();
+  const gname=+secSel.value===0?'All grades':'Grade '+secSel.value;
+  let h='<div class="alllist"><div class="acount">'+gname+' \u00b7 '+deck.length+' cards \u00b7 tap one to study it</div>';
+  deck.forEach((c,i)=>{
+    h+='<div class="acard" data-i="'+i+'">'+c.svg+
+       '<div class="ak mincho">'+c.k+'</div>'+
+       '<div class="ainfo"><div class="af jp">'+c.feat+' \u00b7 <span style="font-weight:400">'+c.fro+'</span></div>'+
+       '<div class="aen">'+c.en+'</div>'+
+       '<div class="ard jp">'+(c.kun?'\u8a13 '+c.kun+'  ':'')+(c.on?'\u97f3 '+c.on:'')+'</div></div></div>';
+  });
+  h+='</div>';
+  main.innerHTML=h;
+  document.querySelectorAll('.acard').forEach(el=>el.onclick=()=>{
+    const i=+el.dataset.i;
+    mode='browse';
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.m==='browse'));
+    deck=pool();pos=i;render();
+  });
+}
 
 function renderQuiz(){
   if(asked>=deck.length){
