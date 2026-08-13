@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Katakana Flashcards</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;background:#e9e6dc;color:#2c2a26;
+    display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;}
+  .jp{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Hiragino Sans",sans-serif;}
+  header{background:#3d6b5e;color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;flex:none;}
+  .hrow{display:flex;align-items:center;gap:10px;}
+  .hback{display:inline-flex;align-items:center;justify-content:center;min-width:54px;min-height:54px;
+    font-size:34px;line-height:1;color:#fff;text-decoration:none;border-radius:14px;background:rgba(255,255,255,.14);flex:0 0 auto;}
+  .hrow h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.5px;flex:1;}
+  select{font-size:15px;padding:7px 8px;border-radius:9px;border:none;background:#fff;max-width:46%;}
+  .tabs{display:flex;gap:8px;margin-top:10px;}
+  .tab{flex:1;text-align:center;padding:9px 0;border-radius:10px;background:rgba(255,255,255,.18);color:#fff;
+    font-size:14px;font-weight:600;cursor:pointer;border:none;opacity:.85;}
+  .tab.on{background:#fff;color:#3d6b5e;opacity:1;}
+  main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;min-height:0;}
+  .card{width:100%;max-width:440px;height:100%;max-height:620px;background:#fffdf7;border:1px solid #d9d3c2;
+    border-radius:20px;box-shadow:0 8px 26px rgba(0,0,0,.16);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:18px;position:relative;overflow:hidden;cursor:pointer;user-select:none;}
+  .front{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;}
+  .kbig{font-size:170px;line-height:1;font-weight:700;}
+  .secbadge{position:absolute;top:12px;left:14px;font-size:12px;color:#b3aa92;font-style:italic;}
+  .flliphint{position:absolute;bottom:10px;font-size:12px;color:#c3bba6;letter-spacing:.5px;}
+  .back{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;flex:1;overflow-y:auto;}
+  .card.flipped .front{display:none;}
+  .card.flipped .back{display:flex;}
+  .bk{font-size:84px;line-height:1;font-weight:700;}
+  .brom{color:#c0392b;font-style:italic;font-size:44px;margin-top:8px;font-weight:600;}
+  .say{color:#9a8f76;font-style:italic;font-size:18px;margin-top:8px;}
+  .speak{margin-top:12px;width:52px;height:52px;border-radius:50%;border:none;background:#f0ece0;font-size:24px;cursor:pointer;}
+  .bex{margin-top:16px;padding-top:14px;border-top:1px dashed #ddd4bf;width:90%;}
+  .bex .jp2{font-size:30px;line-height:1.3;}
+  .bex .ro{font-style:italic;color:#8a8472;font-size:17px;margin-top:5px;}
+  .bex .en{font-size:19px;color:#4a463d;margin-top:5px;}
+  .hl{color:#c0392b;font-weight:700;}
+  .nav{display:flex;align-items:center;gap:16px;margin-top:12px;flex:none;padding-bottom:env(safe-area-inset-bottom);}
+  .nav button{width:58px;height:58px;border-radius:50%;border:none;background:#3d6b5e;color:#fff;font-size:24px;cursor:pointer;}
+  .counter{font-size:15px;color:#6b6557;min-width:88px;text-align:center;}
+  .alllist{width:100%;max-width:520px;height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:9px;
+    padding:2px 2px 24px;-webkit-overflow-scrolling:touch;}
+  .acount{font-size:13px;color:#8a8472;text-align:center;flex:none;}
+  .acard{background:#fffdf7;border:1px solid #d9d3c2;border-radius:14px;padding:10px 14px;display:flex;gap:14px;
+    align-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.07);flex:none;}
+  .acard .ak{font-size:40px;font-weight:700;flex:0 0 auto;min-width:52px;text-align:center;}
+  .acard .arom{font-size:20px;color:#c0392b;font-style:italic;min-width:52px;font-weight:600;}
+  .acard .ainfo{flex:1;min-width:0;}
+  .acard .aex{font-size:15px;}
+  .acard .aen{font-size:13px;color:#6b6557;}
+  .quizwrap{width:100%;max-width:440px;height:100%;display:flex;flex-direction:column;gap:10px;min-height:0;}
+  .qtype{display:flex;gap:8px;flex:none;}
+  .qtbtn{flex:1;padding:8px 0;border-radius:10px;border:1px solid #d9d3c2;background:#fffdf7;color:#6b6557;font-size:14px;font-weight:600;cursor:pointer;}
+  .qtbtn.on{background:#3d6b5e;color:#fff;border-color:#3d6b5e;}
+  .qcard{flex:1;min-height:0;background:#fffdf7;border:1px solid #d9d3c2;border-radius:18px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,.12);}
+  .qbig{font-size:110px;line-height:1;font-weight:700;}
+  .qprompt{font-size:14px;color:#9a8f76;font-style:italic;margin-top:10px;}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;flex:none;}
+  .opt{min-height:58px;padding:8px;border-radius:13px;border:1px solid #d9d3c2;background:#fffdf7;font-size:22px;font-weight:700;cursor:pointer;}
+  .opt.correct{background:#e6f2df;border-color:#4f8a3d;color:#2d5a20;}
+  .opt.wrong{background:#fbe9e6;border-color:#c0392b;color:#96271b;}
+  .qbar{display:flex;align-items:center;justify-content:space-between;flex:none;padding-bottom:env(safe-area-inset-bottom);}
+  .score{font-size:15px;color:#6b6557;}
+  .qnext{padding:12px 26px;border-radius:12px;border:none;background:#3d6b5e;color:#fff;font-size:16px;font-weight:600;cursor:pointer;}
+  .qnext:disabled{opacity:.4;}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <a class="hback" href="/"
+       onclick="try{if(history.length>1&&document.referrer&&new URL(document.referrer).origin===location.origin){history.back();return false}}catch(e){}">&#8249;</a>
+    <h1>Katakana Flashcards</h1>
+    <select id="sec"></select>
+  </div>
+  <div class="tabs">
+    <button class="tab on" data-m="browse">Browse</button>
+    <button class="tab" data-m="all">All</button>
+    <button class="tab" data-m="shuffle">Shuffle</button>
+    <button class="tab" data-m="quiz">Quiz</button>
+  </div>
+</header>
+<main id="main"></main>
+
+<script id="cards" type="application/json">[{"ch":"ア","g":1,"romaji":"a","say":"ah","exjp":"アイス","exhl":"<span class=\"hl\">ア</span>イス","exro":"aisu","exen":"ice cream"},{"ch":"イ","g":1,"romaji":"i","say":"ee","exjp":"イス","exhl":"<span class=\"hl\">イ</span>ス","exro":"isu","exen":"chair"},{"ch":"ウ","g":1,"romaji":"u","say":"oo","exjp":"ウイルス","exhl":"<span class=\"hl\">ウ</span>イルス","exro":"uirusu","exen":"virus"},{"ch":"エ","g":1,"romaji":"e","say":"eh","exjp":"エアコン","exhl":"<span class=\"hl\">エ</span>アコン","exro":"eakon","exen":"air conditioner"},{"ch":"オ","g":1,"romaji":"o","say":"oh","exjp":"オレンジ","exhl":"<span class=\"hl\">オ</span>レンジ","exro":"orenji","exen":"orange"},{"ch":"カ","g":1,"romaji":"ka","say":"kah","exjp":"カメラ","exhl":"<span class=\"hl\">カ</span>メラ","exro":"kamera","exen":"camera"},{"ch":"キ","g":1,"romaji":"ki","say":"kee","exjp":"キロ","exhl":"<span class=\"hl\">キ</span>ロ","exro":"kiro","exen":"kilo"},{"ch":"ク","g":1,"romaji":"ku","say":"ku","exjp":"クラス","exhl":"<span class=\"hl\">ク</span>ラス","exro":"kurasu","exen":"class"},{"ch":"ケ","g":1,"romaji":"ke","say":"keh","exjp":"ケーキ","exhl":"<span class=\"hl\">ケ</span>ーキ","exro":"keeki","exen":"cake"},{"ch":"コ","g":1,"romaji":"ko","say":"koh","exjp":"コーヒー","exhl":"<span class=\"hl\">コ</span>ーヒー","exro":"koohii","exen":"coffee"},{"ch":"サ","g":1,"romaji":"sa","say":"sah","exjp":"サラダ","exhl":"<span class=\"hl\">サ</span>ラダ","exro":"sarada","exen":"salad"},{"ch":"シ","g":1,"romaji":"shi","say":"shee","exjp":"シール","exhl":"<span class=\"hl\">シ</span>ール","exro":"shiiru","exen":"sticker"},{"ch":"ス","g":1,"romaji":"su","say":"su","exjp":"スープ","exhl":"<span class=\"hl\">ス</span>ープ","exro":"suupu","exen":"soup"},{"ch":"セ","g":1,"romaji":"se","say":"seh","exjp":"セーター","exhl":"<span class=\"hl\">セ</span>ーター","exro":"seetaa","exen":"sweater"},{"ch":"ソ","g":1,"romaji":"so","say":"soh","exjp":"ソース","exhl":"<span class=\"hl\">ソ</span>ース","exro":"soosu","exen":"sauce"},{"ch":"タ","g":1,"romaji":"ta","say":"tah","exjp":"タクシー","exhl":"<span class=\"hl\">タ</span>クシー","exro":"takushii","exen":"taxi"},{"ch":"チ","g":1,"romaji":"chi","say":"chee","exjp":"チーズ","exhl":"<span class=\"hl\">チ</span>ーズ","exro":"chiizu","exen":"cheese"},{"ch":"ツ","g":1,"romaji":"tsu","say":"tsu","exjp":"ツナ","exhl":"<span class=\"hl\">ツ</span>ナ","exro":"tsuna","exen":"tuna"},{"ch":"テ","g":1,"romaji":"te","say":"teh","exjp":"テレビ","exhl":"<span class=\"hl\">テ</span>レビ","exro":"terebi","exen":"TV"},{"ch":"ト","g":1,"romaji":"to","say":"toh","exjp":"トマト","exhl":"<span class=\"hl\">ト</span>マト","exro":"tomato","exen":"tomato"},{"ch":"ナ","g":1,"romaji":"na","say":"nah","exjp":"ナイフ","exhl":"<span class=\"hl\">ナ</span>イフ","exro":"naifu","exen":"knife"},{"ch":"ニ","g":1,"romaji":"ni","say":"nee","exjp":"テニス","exhl":"テ<span class=\"hl\">ニ</span>ス","exro":"tenisu","exen":"tennis"},{"ch":"ヌ","g":1,"romaji":"nu","say":"nu","exjp":"ヌードル","exhl":"<span class=\"hl\">ヌ</span>ードル","exro":"nuudoru","exen":"noodles"},{"ch":"ネ","g":1,"romaji":"ne","say":"neh","exjp":"ネクタイ","exhl":"<span class=\"hl\">ネ</span>クタイ","exro":"nekutai","exen":"necktie"},{"ch":"ノ","g":1,"romaji":"no","say":"noh","exjp":"ノート","exhl":"<span class=\"hl\">ノ</span>ート","exro":"nooto","exen":"notebook"},{"ch":"ハ","g":1,"romaji":"ha","say":"hah","exjp":"ハム","exhl":"<span class=\"hl\">ハ</span>ム","exro":"hamu","exen":"ham"},{"ch":"ヒ","g":1,"romaji":"hi","say":"hee","exjp":"ヒーター","exhl":"<span class=\"hl\">ヒ</span>ーター","exro":"hiitaa","exen":"heater"},{"ch":"フ","g":1,"romaji":"fu","say":"fu","exjp":"フルーツ","exhl":"<span class=\"hl\">フ</span>ルーツ","exro":"furuutsu","exen":"fruit"},{"ch":"ヘ","g":1,"romaji":"he","say":"heh","exjp":"ヘルメット","exhl":"<span class=\"hl\">ヘ</span>ルメット","exro":"herumetto","exen":"helmet"},{"ch":"ホ","g":1,"romaji":"ho","say":"hoh","exjp":"ホテル","exhl":"<span class=\"hl\">ホ</span>テル","exro":"hoteru","exen":"hotel"},{"ch":"マ","g":1,"romaji":"ma","say":"mah","exjp":"マスク","exhl":"<span class=\"hl\">マ</span>スク","exro":"masuku","exen":"face mask"},{"ch":"ミ","g":1,"romaji":"mi","say":"mee","exjp":"ミルク","exhl":"<span class=\"hl\">ミ</span>ルク","exro":"miruku","exen":"milk"},{"ch":"ム","g":1,"romaji":"mu","say":"mu","exjp":"ムービー","exhl":"<span class=\"hl\">ム</span>ービー","exro":"muubii","exen":"movie, video clip"},{"ch":"メ","g":1,"romaji":"me","say":"meh","exjp":"メール","exhl":"<span class=\"hl\">メ</span>ール","exro":"meeru","exen":"email"},{"ch":"モ","g":1,"romaji":"mo","say":"moh","exjp":"モデル","exhl":"<span class=\"hl\">モ</span>デル","exro":"moderu","exen":"model"},{"ch":"ヤ","g":1,"romaji":"ya","say":"yah","exjp":"タイヤ","exhl":"タイ<span class=\"hl\">ヤ</span>","exro":"taiya","exen":"tire"},{"ch":"ユ","g":1,"romaji":"yu","say":"yu","exjp":"ユーロ","exhl":"<span class=\"hl\">ユ</span>ーロ","exro":"yuuro","exen":"euro"},{"ch":"ヨ","g":1,"romaji":"yo","say":"yoh","exjp":"ヨーグルト","exhl":"<span class=\"hl\">ヨ</span>ーグルト","exro":"yooguruto","exen":"yogurt"},{"ch":"ラ","g":1,"romaji":"ra","say":"rah","exjp":"ラーメン","exhl":"<span class=\"hl\">ラ</span>ーメン","exro":"raamen","exen":"ramen"},{"ch":"リ","g":1,"romaji":"ri","say":"ree","exjp":"リモコン","exhl":"<span class=\"hl\">リ</span>モコン","exro":"rimokon","exen":"remote control"},{"ch":"ル","g":1,"romaji":"ru","say":"ru","exjp":"ルール","exhl":"<span class=\"hl\">ル</span>ール","exro":"ruuru","exen":"rule"},{"ch":"レ","g":1,"romaji":"re","say":"reh","exjp":"レモン","exhl":"<span class=\"hl\">レ</span>モン","exro":"remon","exen":"lemon"},{"ch":"ロ","g":1,"romaji":"ro","say":"roh","exjp":"ロボット","exhl":"<span class=\"hl\">ロ</span>ボット","exro":"robotto","exen":"robot"},{"ch":"ワ","g":1,"romaji":"wa","say":"wah","exjp":"ワイン","exhl":"<span class=\"hl\">ワ</span>イン","exro":"wain","exen":"wine"},{"ch":"ヲ","g":1,"romaji":"o","say":"oh","exjp":"ヲタク","exhl":"<span class=\"hl\">ヲ</span>タク","exro":"otaku","exen":"superfan, geek (slang spelling)"},{"ch":"ン","g":1,"romaji":"n","say":"n","exjp":"パン","exhl":"パ<span class=\"hl\">ン</span>","exro":"pan","exen":"bread"},{"ch":"ガ","g":2,"romaji":"ga","say":"gah","exjp":"ガム","exhl":"<span class=\"hl\">ガ</span>ム","exro":"gamu","exen":"chewing gum"},{"ch":"ギ","g":2,"romaji":"gi","say":"ghee","exjp":"ギター","exhl":"<span class=\"hl\">ギ</span>ター","exro":"gitaa","exen":"guitar"},{"ch":"グ","g":2,"romaji":"gu","say":"gu","exjp":"グループ","exhl":"<span class=\"hl\">グ</span>ループ","exro":"guruupu","exen":"group"},{"ch":"ゲ","g":2,"romaji":"ge","say":"geh","exjp":"ゲーム","exhl":"<span class=\"hl\">ゲ</span>ーム","exro":"geemu","exen":"game"},{"ch":"ゴ","g":2,"romaji":"go","say":"goh","exjp":"ゴルフ","exhl":"<span class=\"hl\">ゴ</span>ルフ","exro":"gorufu","exen":"golf"},{"ch":"ザ","g":2,"romaji":"za","say":"zah","exjp":"ピザ","exhl":"ピ<span class=\"hl\">ザ</span>","exro":"piza","exen":"pizza"},{"ch":"ジ","g":2,"romaji":"ji","say":"jee","exjp":"ジム","exhl":"<span class=\"hl\">ジ</span>ム","exro":"jimu","exen":"gym"},{"ch":"ズ","g":2,"romaji":"zu","say":"zu","exjp":"ズボン","exhl":"<span class=\"hl\">ズ</span>ボン","exro":"zubon","exen":"pants, trousers"},{"ch":"ゼ","g":2,"romaji":"ze","say":"zeh","exjp":"ゼロ","exhl":"<span class=\"hl\">ゼ</span>ロ","exro":"zero","exen":"zero"},{"ch":"ゾ","g":2,"romaji":"zo","say":"zoh","exjp":"ゾンビ","exhl":"<span class=\"hl\">ゾ</span>ンビ","exro":"zonbi","exen":"zombie"},{"ch":"ダ","g":2,"romaji":"da","say":"dah","exjp":"ダンス","exhl":"<span class=\"hl\">ダ</span>ンス","exro":"dansu","exen":"dance"},{"ch":"ヂ","g":2,"romaji":"ji","say":"jee","exjp":"ラヂオ","exhl":"ラ<span class=\"hl\">ヂ</span>オ","exro":"rajio","exen":"radio (old-fashioned spelling)"},{"ch":"ヅ","g":2,"romaji":"zu","say":"zu","exjp":"ヅラ","exhl":"<span class=\"hl\">ヅ</span>ラ","exro":"zura","exen":"wig (slang)"},{"ch":"デ","g":2,"romaji":"de","say":"deh","exjp":"デパート","exhl":"<span class=\"hl\">デ</span>パート","exro":"depaato","exen":"department store"},{"ch":"ド","g":2,"romaji":"do","say":"doh","exjp":"ドア","exhl":"<span class=\"hl\">ド</span>ア","exro":"doa","exen":"door"},{"ch":"バ","g":2,"romaji":"ba","say":"bah","exjp":"バス","exhl":"<span class=\"hl\">バ</span>ス","exro":"basu","exen":"bus"},{"ch":"ビ","g":2,"romaji":"bi","say":"bee","exjp":"ビール","exhl":"<span class=\"hl\">ビ</span>ール","exro":"biiru","exen":"beer"},{"ch":"ブ","g":2,"romaji":"bu","say":"bu","exjp":"ブーツ","exhl":"<span class=\"hl\">ブ</span>ーツ","exro":"buutsu","exen":"boots"},{"ch":"ベ","g":2,"romaji":"be","say":"beh","exjp":"ベッド","exhl":"<span class=\"hl\">ベ</span>ッド","exro":"beddo","exen":"bed"},{"ch":"ボ","g":2,"romaji":"bo","say":"boh","exjp":"ボタン","exhl":"<span class=\"hl\">ボ</span>タン","exro":"botan","exen":"button"},{"ch":"パ","g":2,"romaji":"pa","say":"pah","exjp":"パソコン","exhl":"<span class=\"hl\">パ</span>ソコン","exro":"pasokon","exen":"computer, PC"},{"ch":"ピ","g":2,"romaji":"pi","say":"pee","exjp":"ピアノ","exhl":"<span class=\"hl\">ピ</span>アノ","exro":"piano","exen":"piano"},{"ch":"プ","g":2,"romaji":"pu","say":"pu","exjp":"プール","exhl":"<span class=\"hl\">プ</span>ール","exro":"puuru","exen":"swimming pool"},{"ch":"ペ","g":2,"romaji":"pe","say":"peh","exjp":"ペン","exhl":"<span class=\"hl\">ペ</span>ン","exro":"pen","exen":"pen"},{"ch":"ポ","g":2,"romaji":"po","say":"poh","exjp":"ポテト","exhl":"<span class=\"hl\">ポ</span>テト","exro":"poteto","exen":"potato, fries"},{"ch":"キャ","g":3,"romaji":"kya","say":"kyah","exjp":"キャベツ","exhl":"<span class=\"hl\">キャ</span>ベツ","exro":"kyabetsu","exen":"cabbage"},{"ch":"キュ","g":3,"romaji":"kyu","say":"kyu","exjp":"キュート","exhl":"<span class=\"hl\">キュ</span>ート","exro":"kyuuto","exen":"cute"},{"ch":"キョ","g":3,"romaji":"kyo","say":"kyoh","exjp":"キョロキョロ","exhl":"<span class=\"hl\">キョ</span>ロキョロ","exro":"kyorokyoro","exen":"looking all around (sound word)"},{"ch":"シャ","g":3,"romaji":"sha","say":"shah","exjp":"シャツ","exhl":"<span class=\"hl\">シャ</span>ツ","exro":"shatsu","exen":"shirt"},{"ch":"シュ","g":3,"romaji":"shu","say":"shu","exjp":"シューズ","exhl":"<span class=\"hl\">シュ</span>ーズ","exro":"shuuzu","exen":"shoes"},{"ch":"ショ","g":3,"romaji":"sho","say":"shoh","exjp":"ショッピング","exhl":"<span class=\"hl\">ショ</span>ッピング","exro":"shoppingu","exen":"shopping"},{"ch":"チャ","g":3,"romaji":"cha","say":"chah","exjp":"チャンス","exhl":"<span class=\"hl\">チャ</span>ンス","exro":"chansu","exen":"chance"},{"ch":"チュ","g":3,"romaji":"chu","say":"chu","exjp":"チューリップ","exhl":"<span class=\"hl\">チュ</span>ーリップ","exro":"chuurippu","exen":"tulip"},{"ch":"チョ","g":3,"romaji":"cho","say":"choh","exjp":"チョコレート","exhl":"<span class=\"hl\">チョ</span>コレート","exro":"chokoreeto","exen":"chocolate"},{"ch":"ニャ","g":3,"romaji":"nya","say":"nyah","exjp":"ニャー","exhl":"<span class=\"hl\">ニャ</span>ー","exro":"nyaa","exen":"meow (cat sound)"},{"ch":"ニュ","g":3,"romaji":"nyu","say":"nyu","exjp":"ニュース","exhl":"<span class=\"hl\">ニュ</span>ース","exro":"nyuusu","exen":"news"},{"ch":"ニョ","g":3,"romaji":"nyo","say":"nyoh","exjp":"ニョッキ","exhl":"<span class=\"hl\">ニョ</span>ッキ","exro":"nyokki","exen":"gnocchi"},{"ch":"ヒャ","g":3,"romaji":"hya","say":"hyah","exjp":"ヒャー","exhl":"<span class=\"hl\">ヒャ</span>ー","exro":"hyaa","exen":"eek! yikes! (yelp)"},{"ch":"ヒュ","g":3,"romaji":"hyu","say":"hyu","exjp":"ヒューズ","exhl":"<span class=\"hl\">ヒュ</span>ーズ","exro":"hyuuzu","exen":"fuse"},{"ch":"ヒョ","g":3,"romaji":"hyo","say":"hyoh","exjp":"ヒョウ","exhl":"<span class=\"hl\">ヒョ</span>ウ","exro":"hyou","exen":"leopard"},{"ch":"ミャ","g":3,"romaji":"mya","say":"myah","exjp":"ミャンマー","exhl":"<span class=\"hl\">ミャ</span>ンマー","exro":"myanmaa","exen":"Myanmar"},{"ch":"ミュ","g":3,"romaji":"myu","say":"myu","exjp":"ミュージック","exhl":"<span class=\"hl\">ミュ</span>ージック","exro":"myuujikku","exen":"music"},{"ch":"ミョ","g":3,"romaji":"myo","say":"myoh","exjp":"ミョウガ","exhl":"<span class=\"hl\">ミョ</span>ウガ","exro":"myouga","exen":"myoga (Japanese ginger)"},{"ch":"リャ","g":3,"romaji":"rya","say":"ryah","exjp":"リャマ","exhl":"<span class=\"hl\">リャ</span>マ","exro":"ryama","exen":"llama"},{"ch":"リュ","g":3,"romaji":"ryu","say":"ryu","exjp":"リュック","exhl":"<span class=\"hl\">リュ</span>ック","exro":"ryukku","exen":"backpack"},{"ch":"リョ","g":3,"romaji":"ryo","say":"ryoh","exjp":"リョウ","exhl":"<span class=\"hl\">リョ</span>ウ","exro":"ryou","exen":"Ryo (common boy's name)"},{"ch":"ギャ","g":3,"romaji":"gya","say":"gyah","exjp":"ギャグ","exhl":"<span class=\"hl\">ギャ</span>グ","exro":"gyagu","exen":"gag, joke"},{"ch":"ギュ","g":3,"romaji":"gyu","say":"gyu","exjp":"レギュラー","exhl":"レ<span class=\"hl\">ギュ</span>ラー","exro":"regyuraa","exen":"regular"},{"ch":"ギョ","g":3,"romaji":"gyo","say":"gyoh","exjp":"ギョウザ","exhl":"<span class=\"hl\">ギョ</span>ウザ","exro":"gyouza","exen":"gyoza dumplings"},{"ch":"ジャ","g":3,"romaji":"ja","say":"jah","exjp":"ジャム","exhl":"<span class=\"hl\">ジャ</span>ム","exro":"jamu","exen":"jam"},{"ch":"ジュ","g":3,"romaji":"ju","say":"ju","exjp":"ジュース","exhl":"<span class=\"hl\">ジュ</span>ース","exro":"juusu","exen":"juice"},{"ch":"ジョ","g":3,"romaji":"jo","say":"joh","exjp":"ジョギング","exhl":"<span class=\"hl\">ジョ</span>ギング","exro":"jogingu","exen":"jogging"},{"ch":"ビャ","g":3,"romaji":"bya","say":"byah","exjp":"ビャンビャンメン","exhl":"<span class=\"hl\">ビャ</span>ンビャンメン","exro":"byanbyanmen","exen":"biangbiang noodles"},{"ch":"ビュ","g":3,"romaji":"byu","say":"byu","exjp":"ビュッフェ","exhl":"<span class=\"hl\">ビュ</span>ッフェ","exro":"byuffe","exen":"buffet"},{"ch":"ビョ","g":3,"romaji":"byo","say":"byoh","exjp":"ビョンビョン","exhl":"<span class=\"hl\">ビョ</span>ンビョン","exro":"byonbyon","exen":"boing-boing (springy sound)"},{"ch":"ピャ","g":3,"romaji":"pya","say":"pyah","exjp":"ピャー","exhl":"<span class=\"hl\">ピャ</span>ー","exro":"pyaa","exen":"eek! (squeal sound)"},{"ch":"ピュ","g":3,"romaji":"pyu","say":"pyu","exjp":"ピュア","exhl":"<span class=\"hl\">ピュ</span>ア","exro":"pyua","exen":"pure"},{"ch":"ピョ","g":3,"romaji":"pyo","say":"pyoh","exjp":"ピョンピョン","exhl":"<span class=\"hl\">ピョ</span>ンピョン","exro":"pyonpyon","exen":"hop-hop (bunny sound)"}]</script>
+<script>
+const ALL = JSON.parse(document.getElementById('cards').textContent);
+const main = document.getElementById('main');
+const secSel = document.getElementById('sec');
+const GROUPS = {1:'Basic', 2:'\u309b\u309c Dakuten', 3:'Combos'};
+let mode='browse', deck=[], pos=0, score=0, asked=0, quizType='torom';
+
+(function(){
+  let o='';
+  for(let g=1;g<=3;g++){const n=ALL.filter(c=>c.g===g).length;o+='<option value="'+g+'">'+GROUPS[g]+' ('+n+')</option>';}
+  o+='<option value="0">Everything ('+ALL.length+')</option>';
+  secSel.innerHTML=o;
+})();
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pool(){const s=+secSel.value;return s===0?ALL.slice():ALL.filter(c=>c.g===s);}
+function buildDeck(){deck=pool();if(mode==='shuffle'||mode==='quiz')shuffle(deck);pos=0;}
+
+let jaVoice=null;
+function pickVoice(){
+  if(!window.speechSynthesis)return;
+  const bad=/(eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)/i;
+  const vs=(speechSynthesis.getVoices()||[]).filter(v=>/^ja/i.test((v.lang||'').replace('_','-')));
+  vs.sort((a,b)=>{const s=v=>(bad.test(v.name)?-100:0)+(/premium|enhanced/i.test(v.name+v.voiceURI)?50:0)+(/kyoko|otoya/i.test(v.name)?55:0);return s(b)-s(a);});
+  jaVoice=vs[0]||null;
+}
+if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function say(t){
+  if(!window.speechSynthesis||!t)return;
+  try{speechSynthesis.cancel();setTimeout(()=>{const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=.55;if(jaVoice)u.voice=jaVoice;speechSynthesis.speak(u);},180);}catch(e){}
+}
+
+function render(){
+  if(mode==='quiz'){renderQuiz();return;}
+  if(mode==='all'){renderAll();return;}
+  const c=deck[pos];
+  main.innerHTML=
+    '<div class="card" id="cardEl">'+
+      '<div class="secbadge">'+GROUPS[c.g]+'</div>'+
+      '<div class="front"><div class="kbig jp">'+c.ch+'</div></div>'+
+      '<div class="back">'+
+        '<div class="bk jp">'+c.ch+'</div>'+
+        '<div class="brom">'+c.romaji+'</div>'+
+        '<div class="say">say: \u201c'+c.say+'\u201d</div>'+
+        '<button class="speak" id="spk">\ud83d\udd0a</button>'+
+        (c.exjp?'<div class="bex"><div class="jp2 jp">'+c.exhl+'</div><div class="ro">'+c.exro+'</div><div class="en">'+c.exen+'</div></div>':'')+
+      '</div>'+
+      '<div class="flliphint">tap to flip</div>'+
+    '</div>'+
+    '<div class="nav">'+
+      '<button id="prev">&#8249;</button>'+
+      '<div class="counter">'+(pos+1)+' / '+deck.length+'</div>'+
+      '<button id="next">&#8250;</button>'+
+    '</div>';
+  const card=document.getElementById('cardEl');
+  document.getElementById('prev').onclick=e=>{e.stopPropagation();go(-1);};
+  document.getElementById('next').onclick=e=>{e.stopPropagation();go(1);};
+  document.getElementById('spk').onclick=e=>{e.stopPropagation();say(deck[pos].ch);};
+  let sx=0,sy=0;
+  card.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;});
+  card.addEventListener('pointerup',e=>{
+    if(e.target.id==='spk')return;
+    const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)){go(dx<0?1:-1);}
+    else if(Math.abs(dx)<12&&Math.abs(dy)<12){card.classList.toggle('flipped');}
+  });
+}
+function go(d){pos=(pos+d+deck.length)%deck.length;render();}
+
+function renderAll(){
+  deck=pool();
+  const gname=+secSel.value===0?'Everything':GROUPS[+secSel.value];
+  let h='<div class="alllist"><div class="acount">'+gname+' \u00b7 '+deck.length+' \u00b7 tap one to study it</div>';
+  deck.forEach((c,i)=>{
+    h+='<div class="acard" data-i="'+i+'"><div class="ak jp">'+c.ch+'</div>'+
+       '<div class="arom">'+c.romaji+'</div>'+
+       '<div class="ainfo"><div class="aex jp">'+c.exhl+' \u00b7 '+c.exro+'</div>'+
+       '<div class="aen">'+c.exen+'</div></div></div>';
+  });
+  h+='</div>';
+  main.innerHTML=h;
+  document.querySelectorAll('.acard').forEach(el=>el.onclick=()=>{
+    const i=+el.dataset.i;
+    mode='browse';
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.m==='browse'));
+    deck=pool();pos=i;render();
+  });
+}
+
+function renderQuiz(){
+  if(asked>=deck.length){
+    main.innerHTML='<div class="quizwrap" style="justify-content:center"><div class="qcard">'+
+      '<div style="font-size:34px;font-weight:700">Quiz complete!</div>'+
+      '<div style="font-size:26px;margin-top:10px">You scored '+score+' / '+asked+'</div>'+
+      '<button class="qnext" style="margin-top:18px" id="again">Play again</button></div></div>';
+    document.getElementById('again').onclick=()=>{startQuiz();};
+    return;
+  }
+  const c=deck[pos];
+  const toKana=(quizType==='tokana');
+  const toggle='<div class="qtype">'+
+    '<button class="qtbtn'+(quizType==='torom'?' on':'')+'" data-qt="torom">Read it</button>'+
+    '<button class="qtbtn'+(quizType==='tokana'?' on':'')+'" data-qt="tokana">Find it</button>'+
+  '</div>';
+  let others=pool().filter(x=>x.romaji!==c.romaji);
+  shuffle(others);
+  let opts=[c,...others.slice(0,3)];
+  shuffle(opts);
+  const promptTxt=toKana?'Which one is \u201c'+c.romaji+'\u201d?':'How do you read it?';
+  const qface=toKana?'<div class="qbig jp">?</div><div style="font-size:54px;color:#c0392b;font-style:italic;font-weight:700">'+c.romaji+'</div>'
+                    :'<div class="qbig jp">'+c.ch+'</div>';
+  const optsHTML=opts.map((o,i)=>{
+    const label=toKana?o.ch:o.romaji;
+    const ok=o.romaji===c.romaji?1:0;
+    return '<button class="opt'+(toKana?' jp':'')+'" data-i="'+i+'" data-ok="'+ok+'">'+label+'</button>';
+  }).join('');
+  main.innerHTML='<div class="quizwrap">'+toggle+
+    '<div class="qcard">'+qface+'<div class="qprompt">'+promptTxt+'</div></div>'+
+    '<div class="opts" id="opts">'+optsHTML+'</div>'+
+    '<div class="qbar"><div class="score">Score '+score+' / '+asked+'</div>'+
+      '<button class="qnext" id="qn" disabled>Next &#8250;</button></div>'+
+  '</div>';
+  asked++;
+  document.querySelectorAll('.qtbtn').forEach(t=>t.onclick=()=>{if(quizType!==t.dataset.qt){quizType=t.dataset.qt;startQuiz();}});
+  const btns=[...document.querySelectorAll('.opt')];
+  btns.forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;
+    const ok=b.dataset.ok==='1';
+    btns.forEach(x=>{x.disabled=true;if(x.dataset.ok==='1')x.classList.add('correct');});
+    if(ok){score++;say(c.ch);}else{b.classList.add('wrong');}
+    document.querySelector('.score').textContent='Score '+score+' / '+asked;
+    const qn=document.getElementById('qn');qn.disabled=false;
+    qn.onclick=()=>{pos=(pos+1)%deck.length;renderQuiz();};
+  });
+}
+function startQuiz(){buildDeck();score=0;asked=0;renderQuiz();}
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');mode=t.dataset.m;
+  if(mode==='quiz')startQuiz(); else {buildDeck();render();}
+});
+secSel.onchange=()=>{ if(mode==='quiz')startQuiz(); else {buildDeck();render();} };
+
+buildDeck();render();
+</script>
+<script>
+/* pull-to-refresh: drag down from the very top to reload fresh (clears app caches first) */
+(function(){
+  if(!('ontouchstart' in window))return;
+  var THRESH=85, startY=0, dy=0, armed=false, busy=false;
+  var el=document.createElement('div');
+  el.setAttribute('style','position:fixed;top:-64px;left:50%;transform:translateX(-50%);z-index:9999;'+
+    'display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 20px;border-radius:999px;'+
+    'background:rgba(31,35,40,.88);color:#fffdf7;font:600 15px -apple-system,BlinkMacSystemFont,sans-serif;'+
+    'box-shadow:0 4px 14px rgba(0,0,0,.3);transition:top .18s;pointer-events:none');
+  el.innerHTML='<span data-ptr-ic style="font-size:18px">&#8595;</span><span data-ptr-tx>Pull to refresh</span>';
+  document.body.appendChild(el);
+  var ic=el.querySelector('[data-ptr-ic]'), tx=el.querySelector('[data-ptr-tx]');
+  function scrolled(t){ while(t&&t!==document.body){ if(t.scrollTop>0)return true; t=t.parentElement; } return false; }
+  document.addEventListener('touchstart',function(e){
+    if(busy||e.touches.length!==1)return;
+    var t=e.target;
+    if(t&&t.tagName==='CANVAS')return;               /* never fight the drawing pad */
+    if((window.scrollY||document.documentElement.scrollTop||0)>0)return;
+    if(scrolled(t))return;
+    armed=true;startY=e.touches[0].clientY;dy=0;
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!armed||busy)return;
+    dy=e.touches[0].clientY-startY;
+    if(dy<=8){el.style.top='-64px';return;}
+    el.style.top=(Math.min(dy*0.45,80)-52)+'px';
+    tx.textContent = dy>THRESH ? 'Release to refresh' : 'Pull to refresh';
+    ic.innerHTML  = dy>THRESH ? '&#8635;' : '&#8595;';
+  },{passive:true});
+  document.addEventListener('touchend',function(){
+    if(!armed||busy)return;
+    armed=false;
+    if(dy>THRESH){
+      busy=true; el.style.top='14px'; ic.innerHTML='&#8987;'; tx.textContent='Refreshing\u2026';
+      (async function(){
+        try{ if(navigator.serviceWorker){ var rs=await navigator.serviceWorker.getRegistrations(); for(var i=0;i<rs.length;i++){ try{await rs[i].update();}catch(e){} } } }catch(e){}
+        try{ if(window.caches){ var ks=await caches.keys(); for(var j=0;j<ks.length;j++){ try{await caches.delete(ks[j]);}catch(e){} } } }catch(e){}
+        location.reload();
+      })();
+    } else { el.style.top='-64px'; }
+  },{passive:true});
+})();
+</script>
+
+</body>
+</html>
