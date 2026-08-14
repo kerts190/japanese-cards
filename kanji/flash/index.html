@@ -310,5 +310,38 @@ buildDeck();render();
   },{passive:true});
 })();
 </script>
+
+<style>
+html.dark body{background:#14161a;color:#e9e7e2}
+html.dark .card,html.dark .qcard,html.dark .prompt{background:#1c1f25;border-color:#2c313a;box-shadow:0 8px 26px rgba(0,0,0,.5)}
+html.dark .opt,html.dark .qtbtn,html.dark .tile,html.dark .acard,html.dark select,html.dark .answerbox input,html.dark .clr{background:#23272f;color:#e9e7e2;border-color:#3a4048}
+html.dark .answer{background:#1c1f25;border-color:#3a4048}
+html.dark .answer .tile{background:#5a4a7a;color:#fff}
+html.dark .speak,html.dark .bigspk{background:#2c313a;color:#e9e7e2}
+html.dark .aen,html.dark .ard,html.dark .en,html.dark .vhira,html.dark .say,html.dark .counter,html.dark .score,html.dark .hint,html.dark .fhint,html.dark .hintl,html.dark .acount,html.dark .bpos,html.dark .ansread,html.dark .bex .ro,html.dark .bex .en{color:#98a0aa}
+html.dark td{border-color:#2c313a}
+html.dark td .r,html.dark td.lbl{color:#98a0aa}
+html.dark .verdict.ok,html.dark .vok{background:#1e2f1a;color:#9fd18a}
+html.dark .verdict.no,html.dark .vno{background:#33221f;color:#e08a7d}
+html.dark .opt.correct{background:#1e2f1a;border-color:#4f8a3d;color:#9fd18a}
+html.dark .opt.wrong{background:#33221f;border-color:#c0392b;color:#e08a7d}
+html.dark .flliphint,html.dark .secbadge{color:#5a616b}
+html.dark .bex{border-color:#2c313a}
+html.dark #sheet{background:#fff;color:#1f2328}
+@media print{html.dark body{background:#fff;color:#000}}
+</style>
+<script>(function(){
+ function S(){try{return JSON.parse(localStorage.getItem('jv_set'))||{}}catch(e){return{}}}
+ function eff(t){return t==='dark'||(t!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
+ function ap(d){document.documentElement.classList.toggle('dark',d)}
+ ap(eff(S().theme));
+ var b=document.createElement('button');b.textContent='\u25d0';
+ b.setAttribute('style','min-width:44px;min-height:44px;border:none;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:20px;cursor:pointer;flex:0 0 auto');
+ var row=document.querySelector('.hrow')||document.querySelector('header');
+ if(row)row.appendChild(b);
+ b.onclick=function(){var st=S();var d=!eff(st.theme);st.theme=d?'dark':'light';
+   try{localStorage.setItem('jv_set',JSON.stringify(st))}catch(e){}
+   ap(d)};
+})();</script>
 </body>
 </html>
