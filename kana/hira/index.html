@@ -116,9 +116,9 @@ function pickVoice(){
   jaVoice=vs[0]||null;
 }
 if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
-function say(t){
+function say(t,slow){
   if(!window.speechSynthesis||!t)return;
-  try{speechSynthesis.cancel();setTimeout(()=>{const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=.55;if(jaVoice)u.voice=jaVoice;speechSynthesis.speak(u);},180);}catch(e){}
+  try{speechSynthesis.cancel();setTimeout(()=>{const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=slow?.35:.55;if(jaVoice)u.voice=jaVoice;speechSynthesis.speak(u);},180);}catch(e){}
 }
 
 function render(){
@@ -148,8 +148,8 @@ function render(){
   const card=document.getElementById('cardEl');
   document.getElementById('prev').onclick=e=>{e.stopPropagation();go(-1);};
   document.getElementById('next').onclick=e=>{e.stopPropagation();go(1);};
-  document.getElementById('spk').onclick=e=>{e.stopPropagation();say(deck[pos].ch);};
-  document.getElementById('fspk').onclick=e=>{e.stopPropagation();say(deck[pos].ch);};
+  document.getElementById('spk').onclick=e=>{e.stopPropagation();say(deck[pos].ch,true);};
+  document.getElementById('fspk').onclick=e=>{e.stopPropagation();say(deck[pos].ch,true);};
   const exs=document.getElementById('exspk'); if(exs)exs.onclick=e=>{e.stopPropagation();say(deck[pos].exjp);};
   let sx=0,sy=0;
   card.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;});
@@ -222,7 +222,7 @@ function renderQuiz(){
     if(b.disabled)return;
     const ok=b.dataset.ok==='1';
     btns.forEach(x=>{x.disabled=true;if(x.dataset.ok==='1')x.classList.add('correct');});
-    if(ok){score++;say(c.ch);}else{b.classList.add('wrong');}
+    if(ok){score++;say(c.ch,true);}else{b.classList.add('wrong');}
     document.querySelector('.score').textContent='Score '+score+' / '+asked;
     const qn=document.getElementById('qn');qn.disabled=false;
     qn.onclick=()=>{pos=(pos+1)%deck.length;renderQuiz();};
